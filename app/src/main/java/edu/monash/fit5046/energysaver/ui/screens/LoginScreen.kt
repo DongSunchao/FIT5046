@@ -14,6 +14,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    val passwordStrongEnough = password.length >= 8
 
     Column(
         modifier = Modifier
@@ -23,13 +24,19 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Text("EnergySaver Login", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Track household energy use and reduce carbon footprint",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -49,14 +56,21 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToRegister: () -> Unit) {
         )
         // Password strength indicator requirement
         LinearProgressIndicator(
-            progress = { if (password.length > 8) 1f else password.length / 8f },
+            progress = { if (passwordStrongEnough) 1f else password.length / 8f },
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         )
-        Text("Password Strength: ${if (password.length > 8) "Strong" else "Weak"}", style = MaterialTheme.typography.bodySmall)
+        Text(
+            "Password guideline: use at least 8 characters and hide by default",
+            style = MaterialTheme.typography.bodySmall
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Button(onClick = onLoginSuccess, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = onLoginSuccess,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = email.contains("@") && passwordStrongEnough
+        ) {
             Text("Login")
         }
 

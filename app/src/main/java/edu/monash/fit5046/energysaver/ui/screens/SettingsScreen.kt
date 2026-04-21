@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 fun SettingsScreen() {
     var backgroundSync by remember { mutableStateOf(false) }
     var dailyAlarm by remember { mutableStateOf(false) }
+    var reminderTime by remember { mutableStateOf("20:30") }
 
     Column(
         modifier = Modifier
@@ -22,48 +23,59 @@ fun SettingsScreen() {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text("Advanced Features Settings", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Control background energy insights and daily reminder preferences",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Advanced Feature 1: WorkManager
         Card(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Icon(Icons.Filled.Sync, contentDescription = "WorkManager Sync")
                     Spacer(modifier = Modifier.width(16.dp))
-                    Column {
-                        Text("Background Sync (WorkManager)", style = MaterialTheme.typography.titleMedium)
-                        Text("Periodically fetches sensor data", style = MaterialTheme.typography.bodySmall)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Background Energy Insights", style = MaterialTheme.typography.titleMedium)
+                        Text("Periodically imports simulated smart meter readings and weather context.", style = MaterialTheme.typography.bodySmall)
                     }
+                    Switch(checked = backgroundSync, onCheckedChange = { backgroundSync = it })
                 }
-                Switch(checked = backgroundSync, onCheckedChange = { backgroundSync = it })
+                LinearProgressIndicator(
+                    progress = { if (backgroundSync) 0.72f else 0.12f },
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+                )
+                Text(if (backgroundSync) "Next background sample: 15 minutes" else "Enable to schedule periodic context updates")
             }
         }
         
-        // Advanced Feature 2: Alarm Manager
         Card(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Icon(Icons.Filled.Alarm, contentDescription = "Alarm Manager")
                     Spacer(modifier = Modifier.width(16.dp))
-                    Column {
-                        Text("Daily Notifications (AlarmManager)", style = MaterialTheme.typography.titleMedium)
-                        Text("Alerts when exceeding daily goals", style = MaterialTheme.typography.bodySmall)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Daily Energy Reminders", style = MaterialTheme.typography.titleMedium)
+                        Text("Schedules reminders when daily usage or peak-price risk is high.", style = MaterialTheme.typography.bodySmall)
                     }
+                    Switch(checked = dailyAlarm, onCheckedChange = { dailyAlarm = it })
                 }
-                Switch(checked = dailyAlarm, onCheckedChange = { dailyAlarm = it })
+                OutlinedTextField(
+                    value = reminderTime,
+                    onValueChange = { reminderTime = it },
+                    label = { Text("Reminder time") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                    singleLine = true
+                )
             }
         }
 
@@ -72,7 +84,7 @@ fun SettingsScreen() {
             onClick = { /* Trigger Manual Sync */ },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Text("Trigger Manual WorkManager Task")
+            Text("Refresh Energy Insights")
         }
     }
 }
