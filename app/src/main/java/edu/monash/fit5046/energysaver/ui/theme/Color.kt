@@ -2,10 +2,11 @@ package edu.monash.fit5046.energysaver.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val LeafGreen80 = Color(0xFFA8DDB5)
+val SkyBlue80 = Color(0xFF9DD8F0)
+val SolarAmber80 = Color(0xFFFFD166)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val LeafGreen40 = Color(0xFF1B7F5A)
+val GridBlue40 = Color(0xFF1E6C8F)
+val SolarAmber40 = Color(0xFFB87300)
+val EnergySurface = Color(0xFFF7FBF7)

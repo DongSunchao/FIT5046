@@ -5,23 +5,32 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileFormScreen() {
-    var userName by remember { mutableStateOf("") }
+    var householdName by remember { mutableStateOf("") }
     var selectedApplianceType by remember { mutableStateOf("Lighting") }
     var dailyGoal by remember { mutableStateOf(50f) }
     var receiveAlerts by remember { mutableStateOf(false) }
-    var userGoal by remember { mutableStateOf("") }
+    var monthlyBudget by remember { mutableStateOf("") }
+    var occupancy by remember { mutableStateOf("3") }
+    var selectedDateMillis by remember { mutableStateOf(1776729600000L) }
 
     var isDropdownExpanded by remember { mutableStateOf(false) }
     val applianceCategories = listOf("Lighting", "HVAC", "Kitchen", "Entertainment")
+    val dateFormatter = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
+    val profileStartDate = remember(selectedDateMillis) { dateFormatter.format(Date(selectedDateMillis)) }
 
     val scrollState = rememberScrollState()
 
@@ -32,22 +41,29 @@ fun ProfileFormScreen() {
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Mobile Forms: Setup Profile", style = MaterialTheme.typography.headlineSmall)
-
-        OutlinedTextField(
-            value = userName,
-            onValueChange = { userName = it },
-            label = { Text("Appliance Nickname") },
-            modifier = Modifier.fillMaxWidth()
+        Text("Household Energy Profile", style = MaterialTheme.typography.headlineSmall)
+        Text(
+            "Set household preferences for personalised energy-saving advice",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        // DatePicker UI Mock (Basic Requirement)
+        OutlinedTextField(
+            value = householdName,
+            onValueChange = { householdName = it },
+            label = { Text("Household name") },
+            leadingIcon = { Icon(Icons.Filled.Home, contentDescription = null) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            supportingText = { Text("Used to personalise dashboard and energy tips") }
+        )
+
         var isDateDialogVisible by remember { mutableStateOf(false) }
         OutlinedTextField(
-            value = "01 Jan 2025",
+            value = profileStartDate,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Date of Birth / Registration") },
+            label = { Text("Profile start date") },
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
                 IconButton(onClick = { isDateDialogVisible = true }) {
@@ -57,11 +73,14 @@ fun ProfileFormScreen() {
         )
 
         if (isDateDialogVisible) {
-            val datePickerState = rememberDatePickerState()
+            val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
             DatePickerDialog(
                 onDismissRequest = { isDateDialogVisible = false },
                 confirmButton = {
-                    TextButton(onClick = { isDateDialogVisible = false }) { Text("OK") }
+                    TextButton(onClick = {
+                        selectedDateMillis = datePickerState.selectedDateMillis ?: selectedDateMillis
+                        isDateDialogVisible = false
+                    }) { Text("OK") }
                 },
                 dismissButton = {
                     TextButton(onClick = { isDateDialogVisible = false }) { Text("Cancel") }
@@ -71,7 +90,6 @@ fun ProfileFormScreen() {
             }
         }
 
-        // Expanded Dropdown Requirement
         ExposedDropdownMenuBox(
             expanded = isDropdownExpanded,
             onExpandedChange = { isDropdownExpanded = !isDropdownExpanded },
@@ -81,7 +99,7 @@ fun ProfileFormScreen() {
                 value = selectedApplianceType,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Primary Category (SDG Goal 7)") },
+                label = { Text("Highest energy category") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded) },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                 modifier = Modifier.menuAnchor()
@@ -102,12 +120,21 @@ fun ProfileFormScreen() {
             }
         }
 
-        // Extra Components (Slider, Switch, Checkbox, Radio Button)
         Text("Daily Energy Goal: ${dailyGoal.toInt()} kWh")
         Slider(
             value = dailyGoal,
             onValueChange = { dailyGoal = it },
             valueRange = 1f..100f
+        )
+
+        OutlinedTextField(
+            value = occupancy,
+            onValueChange = { occupancy = it },
+            label = { Text("Household occupants") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            isError = occupancy.toIntOrNull() == null && occupancy.isNotEmpty(),
+            supportingText = { Text("Non-sensory context used with smart meter readings") }
         )
 
         Row(
@@ -118,25 +145,27 @@ fun ProfileFormScreen() {
                 checked = receiveAlerts,
                 onCheckedChange = { receiveAlerts = it }
             )
-            Text("Subscribe to Smart Meter Analytics")
+            Icon(Icons.Filled.Notifications, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Receive peak-rate and high-usage alerts")
         }
 
-        // Inline Error validation
         OutlinedTextField(
-            value = userGoal,
-            onValueChange = { userGoal = it },
+            value = monthlyBudget,
+            onValueChange = { monthlyBudget = it },
             label = { Text("Monthly Budget ($)") },
-            isError = userGoal.toFloatOrNull() == null && userGoal.isNotEmpty(),
-            modifier = Modifier.fillMaxWidth()
+            isError = monthlyBudget.toFloatOrNull() == null && monthlyBudget.isNotEmpty(),
+            modifier = Modifier.fillMaxWidth(),
+            supportingText = { Text("Inline validation prevents invalid numeric budgets") }
         )
-        if (userGoal.toFloatOrNull() == null && userGoal.isNotEmpty()) {
+        if (monthlyBudget.toFloatOrNull() == null && monthlyBudget.isNotEmpty()) {
             Text("Please enter a valid number", color = MaterialTheme.colorScheme.error)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = { /* Save action */ }, modifier = Modifier.fillMaxWidth()) {
-            Text("Create Record")
+            Text("Save Profile")
         }
     }
 }

@@ -16,6 +16,7 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit, onNavigateToLogin: () -> Unit)
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    val canRegister = email.contains("@") && password.length >= 8 && confirmPassword == password
 
     Column(
         modifier = Modifier
@@ -25,13 +26,19 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit, onNavigateToLogin: () -> Unit)
         verticalArrangement = Arrangement.Center
     ) {
         Text("Create Account", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Register for personalised energy-saving recommendations",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -83,7 +90,11 @@ fun RegisterScreen(onRegisterSuccess: () -> Unit, onNavigateToLogin: () -> Unit)
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Button(onClick = onRegisterSuccess, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = onRegisterSuccess,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = canRegister
+        ) {
             Text("Register")
         }
 
