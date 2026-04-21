@@ -12,6 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,9 +25,12 @@ fun ProfileFormScreen() {
     var receiveAlerts by remember { mutableStateOf(false) }
     var monthlyBudget by remember { mutableStateOf("") }
     var occupancy by remember { mutableStateOf("3") }
+    var selectedDateMillis by remember { mutableStateOf(1776729600000L) }
 
     var isDropdownExpanded by remember { mutableStateOf(false) }
     val applianceCategories = listOf("Lighting", "HVAC", "Kitchen", "Entertainment")
+    val dateFormatter = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
+    val profileStartDate = remember(selectedDateMillis) { dateFormatter.format(Date(selectedDateMillis)) }
 
     val scrollState = rememberScrollState()
 
@@ -54,7 +60,7 @@ fun ProfileFormScreen() {
 
         var isDateDialogVisible by remember { mutableStateOf(false) }
         OutlinedTextField(
-            value = "21 Apr 2026",
+            value = profileStartDate,
             onValueChange = {},
             readOnly = true,
             label = { Text("Profile start date") },
@@ -67,11 +73,14 @@ fun ProfileFormScreen() {
         )
 
         if (isDateDialogVisible) {
-            val datePickerState = rememberDatePickerState()
+            val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
             DatePickerDialog(
                 onDismissRequest = { isDateDialogVisible = false },
                 confirmButton = {
-                    TextButton(onClick = { isDateDialogVisible = false }) { Text("OK") }
+                    TextButton(onClick = {
+                        selectedDateMillis = datePickerState.selectedDateMillis ?: selectedDateMillis
+                        isDateDialogVisible = false
+                    }) { Text("OK") }
                 },
                 dismissButton = {
                     TextButton(onClick = { isDateDialogVisible = false }) { Text("Cancel") }

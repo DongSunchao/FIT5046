@@ -1,9 +1,8 @@
 package edu.monash.fit5046.energysaver.simulator
 
-import android.content.Context
 import kotlin.random.Random
 
-class EnergySensorSimulator(private val context: Context) {
+class EnergySensorSimulator {
 
     private val sampleRows = listOf(
         EnergySensorSample("07:00", 1.8, 18.5, "off-peak"),

@@ -14,6 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import java.util.Locale
+
+private const val CARBON_FACTOR_KG_PER_KWH = 0.65
 
 @Composable
 fun UsageListScreen() {
@@ -116,7 +119,11 @@ fun UsageListScreen() {
                                 }) {
                                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                                 }
-                                IconButton(onClick = { allRecords.remove(record) }) {
+                                IconButton(onClick = {
+                                    if (selectedRecord == record) selectedRecord = null
+                                    if (editingRecord == record) editingRecord = null
+                                    allRecords.remove(record)
+                                }) {
                                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
                                 }
                             }
@@ -132,12 +139,19 @@ fun UsageListScreen() {
             initialValue = editingRecord,
             onDismiss = { showRecordDialog = false },
             onSave = { newRecord ->
-                if (editingRecord == null) {
+                val previousEditingRecord = editingRecord
+                if (previousEditingRecord == null) {
                     allRecords.add(newRecord)
                 } else {
-                    val index = allRecords.indexOf(editingRecord)
-                    if (index >= 0) allRecords[index] = newRecord
+                    val index = allRecords.indexOf(previousEditingRecord)
+                    if (index >= 0) {
+                        allRecords[index] = newRecord
+                        if (selectedRecord == previousEditingRecord) {
+                            selectedRecord = newRecord
+                        }
+                    }
                 }
+                editingRecord = null
                 showRecordDialog = false
             }
         )
@@ -146,9 +160,18 @@ fun UsageListScreen() {
 
 @Composable
 private fun RecordDialog(initialValue: String?, onDismiss: () -> Unit, onSave: (String) -> Unit) {
-    var appliance by remember { mutableStateOf(initialValue?.substringBefore("|")?.trim() ?: "") }
-    var usage by remember { mutableStateOf("1.0") }
-    var category by remember { mutableStateOf("Kitchen") }
+    val parsedParts = initialValue?.split("|")?.map { it.trim() } ?: emptyList()
+    val initialAppliance = parsedParts.getOrNull(0).orEmpty()
+    val initialCategory = parsedParts.getOrNull(1)?.takeIf { it.isNotBlank() } ?: "Kitchen"
+    val initialUsage = parsedParts.getOrNull(2)
+        ?.removeSuffix("kWh")
+        ?.trim()
+        ?.takeIf { it.isNotBlank() }
+        ?: "1.0"
+
+    var appliance by remember(initialValue) { mutableStateOf(initialAppliance) }
+    var usage by remember(initialValue) { mutableStateOf(initialUsage) }
+    var category by remember(initialValue) { mutableStateOf(initialCategory) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -163,7 +186,9 @@ private fun RecordDialog(initialValue: String?, onDismiss: () -> Unit, onSave: (
         confirmButton = {
             TextButton(onClick = {
                 val kwh = usage.toFloatOrNull() ?: 0f
-                onSave("${appliance.ifBlank { "New appliance" }} | $category | ${"%.1f".format(kwh)} kWh | ${"%.2f".format(kwh * 0.65f)} kg CO2e")
+                val usageText = String.format(Locale.US, "%.1f", kwh)
+                val carbonText = String.format(Locale.US, "%.2f", kwh * CARBON_FACTOR_KG_PER_KWH)
+                onSave("${appliance.ifBlank { "New appliance" }} | $category | $usageText kWh | $carbonText kg CO2e")
             }) {
                 Text("Save")
             }

@@ -14,6 +14,6 @@ data class GridPriceDto(
 )
 
 interface EnergyContextApiPlan {
-    fun getWeatherContext(suburb: String): WeatherContextDto
-    fun getGridPriceContext(postcode: String): GridPriceDto
+    suspend fun getWeatherContext(suburb: String): WeatherContextDto
+    suspend fun getGridPriceContext(postcode: String): GridPriceDto
 }

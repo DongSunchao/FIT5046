@@ -1,6 +1,6 @@
 package edu.monash.fit5046.energysaver.data.local
 
-data class EnergyUsageEntity(
+data class EnergyUsageRecordPlan(
     val id: Int,
     val applianceName: String,
     val category: String,
@@ -9,10 +9,10 @@ data class EnergyUsageEntity(
     val recordedDate: String
 )
 
-interface EnergyUsageDaoPlan {
-    fun searchUsageRecords(query: String): List<EnergyUsageEntity>
-    fun insertUsageRecord(record: EnergyUsageEntity)
-    fun updateUsageRecord(record: EnergyUsageEntity)
+interface EnergyUsageRepositoryPlan {
+    fun searchUsageRecords(query: String): List<EnergyUsageRecordPlan>
+    fun insertUsageRecord(record: EnergyUsageRecordPlan)
+    fun updateUsageRecord(record: EnergyUsageRecordPlan)
     fun deleteUsageRecord(recordId: Int)
 }
 

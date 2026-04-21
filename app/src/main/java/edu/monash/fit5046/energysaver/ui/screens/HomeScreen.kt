@@ -10,7 +10,7 @@ import androidx.compose.material.icons.filled.Forest
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
